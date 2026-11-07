@@ -139,6 +139,19 @@ export interface PluginLib {
   /** A block of commands to copy, with a title and an explanation. */
   commandBlock: (title: string, commands: string[], note?: Html) => Html;
   TYPES: Record<string, { label: string; description: string; actions: string[] }>;
+  /** A tab modal: `{ id, title, subtitle, back: { label, url }, active, groups: [{ id, label, tabs: [{ id, label, icon, url, hint }] }] }`. */
+  tabModalHtml: (opts: Record<string, unknown>) => Html;
+  /** The dashboard's hostname, for links a plugin posts elsewhere. */
+  hubDomain: () => string;
+  /** The screen sessions on this machine. */
+  listScreens: () => Promise<ScreenSession[]>;
+  /** Which of those have an agent inside. */
+  agentSessions: (sessions: ScreenSession[]) => Set<string>;
+  screenLogFor: (session: string) => string | null;
+  /** The Claude Code transcripts a folder holds, newest first. */
+  claudeSessionsFor: (dir: string, opts?: { limit?: number }) => { id: string; at: number }[];
+  /** The last `screen -ls`, for a renderer that cannot wait: refreshed in the background, at most every 10s. */
+  screensCached: () => ScreenSession[];
   auth: { sessionOf: (req: import('http').IncomingMessage) => unknown; googleButton: (...a: unknown[]) => Html; BUTTON_CSS: string };
   workspaceType: (key: string) => string | null;
   typeAllows: (key: string, action: string) => boolean;
