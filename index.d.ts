@@ -224,6 +224,10 @@ export interface PluginApi {
   addAssistantContext: (fn: () => string) => void;
   /** Who answers for a git forge host ('github.com'): the environment a child process needs to authenticate there, and who that is. */
   addForge: (host: string, spec: ForgeSpec) => void;
+  /** The "Open with" menu for a folder (the Web IDE here, an editor on the browser's machine): drawn on project rows (the `ide` slot is the plugin's), the files pages and the images gallery. The first plugin that answers wins. */
+  addOpenWith: (fn: (abs: string, opts: { label?: string; caption?: string; git?: { role: string; branch: string; others: string[]; primary: string; unpushed: number; dirty: number } | null }) => Html | null) => void;
+  /** A link that opens a folder elsewhere (the Web IDE on it), offered inside other menus (COMPOSER). */
+  addFolderLink: (fn: (abs: string) => { href: string; label: string; icon?: string; title?: string } | null) => void;
 }
 
 /** What a forge plugin registers for a host. */
