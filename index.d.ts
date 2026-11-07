@@ -143,6 +143,18 @@ export interface PluginLib {
   tabModalHtml: (opts: Record<string, unknown>) => Html;
   /** The dashboard's hostname, for links a plugin posts elsewhere. */
   hubDomain: () => string;
+  /** What git says about a folder: a repository (any shape), its own .git, the worktree role and what a remove destroys, the branch. */
+  projectHasGit: (dir: string) => boolean;
+  hasOwnGit: (dir: string) => boolean;
+  gitWorktreeInfo: (dir: string) => { role: 'none' | 'plain' | 'primary' | 'linked'; branch: string; others: string[]; primary: string; unpushed: number; dirty: number; unborn?: boolean };
+  gitBranchOf: (dir: string) => string;
+  /** The tail a short command's session ends with: it stays open to be read, then closes by itself; and the mark it prints. */
+  lingerTail: (label: string) => string;
+  LINGER_MARK: string;
+  /** A path with ~ for the home folder. */
+  tildePath: (p: string) => string;
+  /** The host runner: 'stop' a screen session (`{ session }`) before starting it afresh, and the rest of its verbs. */
+  hostRunnerRequest: (action: string, payload: Record<string, unknown>, opts?: { timeoutMs?: number }) => Promise<any>;
   /** The screen sessions on this machine. */
   listScreens: () => Promise<ScreenSession[]>;
   /** Which of those have an agent inside. */
