@@ -1,6 +1,6 @@
 {
   "name": "@webship/workspace-plugin-api",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "The TypeScript types of the Webship Workspace dashboard's plugin api, and of the workspacePlugin manifest a plugin package declares.",
   "types": "index.d.ts",
   "main": "index.js",

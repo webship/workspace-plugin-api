@@ -247,6 +247,8 @@ export interface WorkspacePluginManifest {
   settingsTemplate?: string;
   /** The settings.yml block the file replaces: its values carry over on the first install. */
   legacySettingsKey?: string;
+  /** The plugin IS a workspace folder: its key (the folder under the workspace root and the `workspace.<key>.settings.yml` it is described by), the settings template placed once and kept, the `cmd-*.sh` commands placed into the folder (`__WORKSPACE__` filled), and docs (AGENTS.md, README.md) written once. --activate puts the key on settings.yml's workspaces list. */
+  workspace?: { key: string; settingsTemplate?: string; files?: string[]; docs?: string[] };
   /** A YAML file of labels for the settings keys, in the package. */
   labels?: string;
   /** Actions workspace types may allow: { upsun: ["sites"] }. */
