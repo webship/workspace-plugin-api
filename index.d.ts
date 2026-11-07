@@ -89,6 +89,8 @@ export interface FolderSetup {
   problem?: (workspace: string, form: Form, ctx: FolderSetupContext) => string;
 }
 
+export interface ScreenSession { session: string; state?: string; started?: string }
+
 export interface RunResult {
   ok: boolean;
   code: number;
@@ -181,6 +183,20 @@ export interface PluginApi {
   addTypeAction: (action: string, types: string[]) => void;
   /** Labels for the plugin's settings keys. */
   addLabels: (map: Record<string, { label?: string; info?: string; options?: Record<string, string> }>) => void;
+  /** A badge in the project card's corner, sent with every screens poll (so it clears itself); `sessions` is the project's live screens. */
+  addProjectBadge: (fn: (ctx: { key: string; project: string; dir: string; sessions: ScreenSession[] }) => Html | null) => void;
+  /** Live options for a field of a settings file; null means a plain input. */
+  addSettingsOptions: (file: string, dotted: string, fn: (ctx: { file: string; dotted: string }) => Promise<[string, string][] | null>) => void;
+  /** Called after a screen session started for a work item; returns HTML to show, or ''. */
+  addScreenStartHook: (fn: (ctx: { session: string; workKey: string; workspace: string; project: string; dir: string; form: Form }) => Promise<Html | ''> | Html | '') => void;
+  /** Where a work-item key found in a project's name links to, or null. */
+  addWorkKeyLink: (fn: (key: string) => string | null) => void;
+  /** The prompt a screen started for a work item begins with, or null for the dashboard's own. */
+  addWorkPrompt: (fn: (ctx: { key: string; workspace: string; project: string }) => string | null) => void;
+  /** Where a session's log lives when the dashboard does not know: a file in one of `dirs`, or ''. */
+  addSessionLog: (fn: (session: string, dirs: string[]) => string) => void;
+  /** A paragraph of the assistant's system context, or ''. */
+  addAssistantContext: (fn: () => string) => void;
 }
 
 /** The `workspacePlugin` block of a plugin package's package.json. */
