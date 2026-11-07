@@ -210,6 +210,18 @@ export interface PluginApi {
   addSessionLog: (fn: (session: string, dirs: string[]) => string) => void;
   /** A paragraph of the assistant's system context, or ''. */
   addAssistantContext: (fn: () => string) => void;
+  /** Who answers for a git forge host ('github.com'): the environment a child process needs to authenticate there, and who that is. */
+  addForge: (host: string, spec: ForgeSpec) => void;
+}
+
+/** What a forge plugin registers for a host. */
+export interface ForgeSpec {
+  /** The forge's label: 'GitHub'. */
+  label: string;
+  /** The environment a child process (git, gh, glab, curl) needs to authenticate at the host, or null when there is no credential. */
+  env: () => NodeJS.ProcessEnv | null;
+  /** Who the credential belongs to: { username, email, how } for the settings page; never the token. */
+  auth: () => { username?: string; email?: string; how: string };
 }
 
 /** The `workspacePlugin` block of a plugin package's package.json. */
