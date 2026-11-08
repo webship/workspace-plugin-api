@@ -1,4 +1,4 @@
-# @webship/workspace-plugin-api
+# @webship.co/workspace-plugin-api
 
 The TypeScript types of the Webship Workspace dashboard's plugin api — what `register(api)` is
 handed — and of the `workspacePlugin` manifest a plugin package declares in its `package.json`.
@@ -6,7 +6,7 @@ Types only: the dashboard defines the api in `core/workspace-app/plugin-loader.j
 says what it looks like, so a plugin written in TypeScript is checked against it.
 
 ```ts
-import type { PluginApi } from '@webship/workspace-plugin-api';
+import type { PluginApi } from '@webship.co/workspace-plugin-api';
 
 export function register(api: PluginApi): void {
   api.addRowMenu('cloud', { label: 'CLOUD', row: 0 }, ({ key, project }) => `…`);
