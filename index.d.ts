@@ -153,6 +153,12 @@ export interface PluginLib {
   LINGER_MARK: string;
   /** A path with ~ for the home folder. */
   tildePath: (p: string) => string;
+  /** The list helpers a plugin's own list page draws with: readPageState(req), paginate(list, state), SORTS, defaultSort(), listControlsHtml(url, target, state, noun), listPagerHtml(url, target, page, state, noun). */
+  lists: { readPageState: (req: unknown, list?: unknown) => PageState; paginate: (list: unknown[], state: PageState) => { slice: any[]; page: number; pages: number; total: number }; SORTS: Record<string, { cmp: (a: any, b: any) => number }>; defaultSort: () => string; listControlsHtml: (url: string, target: string, state: PageState, noun: string, extra?: Html, hidden?: Html, opts?: Record<string, unknown>) => Html; listPagerHtml: (url: string, target: string, page: unknown, state: PageState, noun: string) => Html };
+  /** The stylesheet version a standalone page links (`/style.css?v=…`). */
+  cssVersionNow: () => string;
+  /** The first `cmd-*.sh` in a folder matching one of the patterns, or null. */
+  findScript: (dir: string, patterns: RegExp[]) => string | null;
   /** The host runner: 'stop' a screen session (`{ session }`) before starting it afresh, and the rest of its verbs. */
   hostRunnerRequest: (action: string, payload: Record<string, unknown>, opts?: { timeoutMs?: number }) => Promise<any>;
   /** The screen sessions on this machine. */
@@ -228,7 +234,12 @@ export interface PluginApi {
   addOpenWith: (fn: (abs: string, opts: { label?: string; caption?: string; git?: { role: string; branch: string; others: string[]; primary: string; unpushed: number; dirty: number } | null }) => Html | null) => void;
   /** A link that opens a folder elsewhere (the Web IDE on it), offered inside other menus (COMPOSER). */
   addFolderLink: (fn: (abs: string) => { href: string; label: string; icon?: string; title?: string } | null) => void;
+  /** A plugin that owns a workspace folder's page (the graphs workspace): its list section, the count on the home card, and whether the files-page actions and the New-folder form stay away from it. */
+  addWorkspaceView: (key: string, view: { listHtml?: (state: PageState) => Html; count?: () => number; noFilesActions?: boolean; noNewForm?: boolean }) => void;
 }
+
+/** The paging and sorting state of a list page, as `lib.lists.readPageState(req)` reads it. */
+export interface PageState { q: string; sort: string; page: number; size: number; filter?: string; [k: string]: unknown }
 
 /** What a forge plugin registers for a host. */
 export interface ForgeSpec {
