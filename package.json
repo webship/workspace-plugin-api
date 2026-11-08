@@ -1,15 +1,20 @@
 {
-  "name": "@webship/workspace-plugin-api",
-  "version": "1.5.0",
+  "name": "@webship.co/workspace-plugin-api",
+  "version": "1.0.0-alpha1",
   "description": "The TypeScript types of the Webship Workspace dashboard's plugin api, and of the workspacePlugin manifest a plugin package declares.",
   "types": "index.d.ts",
   "main": "index.js",
-  "private": true,
   "license": "ISC",
-  "repository": "github:webship/workspace-plugin-api",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/webship/workspace-plugin-api.git"
+  },
   "files": [
     "index.d.ts",
     "index.js",
     "README.md"
-  ]
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
 }
