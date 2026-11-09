@@ -72,6 +72,26 @@ export interface RowMenuSpec {
   menu?: boolean;
 }
 
+/**
+ * A row menu whose body loads when it opens: the page carries the button, its caption and an empty
+ * dropdown shell, and the dashboard fetches `body` into the shell as the menu opens (through its own
+ * /fragments/row-menu/… route, so the Buttons settings arrange the items like an inline menu's).
+ * A dashboard that understands this form says so with `api.capabilities.has('row-menu-body')`.
+ */
+export interface RowMenuBody {
+  /** The button that opens the menu. */
+  html: Html;
+  /** The URL of a fragment this plugin serves (under /fragments/p/<plugin>/) answering the dropdown's inner HTML. */
+  body: string;
+  /** The small text beside the button (`not linked`, `3 running`), or none. */
+  caption?: string;
+  /** Extra classes on the `.uk-inline.act-menu` wrapper, after the `act-menu-<slot>` the dashboard adds. */
+  classes?: string;
+}
+
+/** What a row-menu function answers: the whole menu as HTML, a menu whose body loads when it opens, or null. */
+export type RowMenuAnswer = Html | RowMenuBody | null;
+
 export interface FolderSetupContext {
   /** The actions the workspace's type allows. */
   allowed: Set<string>;
@@ -191,6 +211,12 @@ export interface PluginApi {
   config: Record<string, any>;
   lib: PluginLib;
   settings: PluginSettings;
+  /**
+   * What this dashboard can do that an older one could not; a package that serves several dashboards
+   * checks it before using a newer form of an answer. Absent on a dashboard older than 1.0.0-rc2.
+   * Names so far: `row-menu-body` (a row-menu function may answer a `RowMenuBody`).
+   */
+  capabilities?: ReadonlySet<string>;
   /** Whether `config.workspaces` includes that workspace (an empty list means all). */
   appliesTo: (workspaceKey: string) => boolean;
   /** POST handler at /actions/p/<plugin>/<action>. */
@@ -201,8 +227,12 @@ export interface PluginApi {
   addPageActions: (fn: (ctx: { view: string; key: string; meta: WorkspaceMeta }) => { label: string; items: Html[] } | null) => void;
   /** HTML appended to a project row's actions, or null. */
   addProjectActions: (fn: (ctx: { key: string; project: string; dir: string; meta: WorkspaceMeta }) => Html | null) => void;
-  /** A named menu on every project row, in a slot the Buttons settings arrange. */
-  addRowMenu: (slot: string, spec: RowMenuSpec, fn: (ctx: RowContext) => Html | null) => void;
+  /**
+   * A named menu on every project row, in a slot the Buttons settings arrange. The function answers the
+   * menu's HTML, null for a row it has nothing for, or a `RowMenuBody`: the button and the URL of the
+   * body, fetched when the menu opens (needs `capabilities.has('row-menu-body')`).
+   */
+  addRowMenu: (slot: string, spec: RowMenuSpec, fn: (ctx: RowContext) => RowMenuAnswer) => void;
   /** A whole page: GET requests whose path matches `re`. */
   addPage: (re: RegExp, handler: (ctx: PageContext) => unknown) => void;
   /** A chip in the project card's meta line, or null. */
