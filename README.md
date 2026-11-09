@@ -13,5 +13,10 @@ export function register(api: PluginApi): void {
 }
 ```
 
+A row-menu function may also answer a `RowMenuBody` (`{ html, body, caption?, classes? }`): the button
+and the URL of a fragment that answers the dropdown's inner HTML when the menu opens, so a page of
+fifty rows carries fifty buttons and not fifty menus. A dashboard that understands that form says so
+with `api.capabilities.has('row-menu-body')`.
+
 The contract and the lifecycle (require, activate, install, configure) are documented in the
 dashboard's `core/workspace-app/PLUGINS.md`.
