@@ -329,18 +329,41 @@ export interface WorkspacePluginManifest {
    */
   ai?: { agents?: string[]; skills?: string[]; commands?: string[]; prompts?: string[] };
   /**
-   * The plugins this one cannot do its job without, by manifest name: a name, or a list of names when
-   * any one of them will do (the first is the one added when none is here) —
-   * `[["dev", "test", "sandboxes", "demos"], "ai-agents"]`. A need is about the workspace, not about
-   * node_modules: it is met when that plugin is activated and installed. --activate and --install stop
-   * until it is, and add it with --with-needs; --deactivate and --uninstall of a needed plugin refuse.
+   * What this plugin cannot do its job without. A list is the plugins, by manifest name: a name, or a
+   * list of names when any one of them will do (the first is the one added when none is here) —
+   * `[["dev", "test", "sandboxes", "demos"], "ai-agents"]`. An object holds the plugins and the commands
+   * it needs on the machine: `{ plugins: [...], commands: ["upsun", "container:twg", ["curl", "wget"]] }`.
+   * A plugin need is about the workspace, not about node_modules: it is met when that plugin is
+   * activated and installed; --activate and --install stop until it is, and add it with --with-needs;
+   * --deactivate and --uninstall of a needed plugin refuse. A command is reported by
+   * `webship-workspace doctor` and `plugins.sh --check` as found or missing, and is never installed.
    */
-  needs?: PluginNeed[];
-  /** The plugins a part of this one is for, in the same shape: said by --require and --list, never added, never a reason to stop. */
-  suggests?: PluginNeed[];
+  needs?: PluginNeeds;
+  /** What a part of this plugin is for, in the same shape: said by --require, --list and the check; never added, never a reason to stop. */
+  suggests?: PluginNeeds;
 }
 
-/** One need: a plugin's manifest name, or the names any one of which meets it. */
+/** One plugin need: a plugin's manifest name, or the names any one of which meets it. */
 export type PluginNeed = string | string[];
+
+/**
+ * One command need: a command's name (optionally `host:`, `container:` or `project:` first, to say which
+ * machine), the names any one of which will do, or the long form with where it runs and how to install it.
+ */
+export type CommandNeed = string | string[] | {
+  /** The command's name. */
+  command?: string;
+  /** Or: the names any one of which will do. */
+  anyOf?: string[];
+  /** `host` (the default: where the cmd-*.sh run), `container` (the dashboard's) or `project` (the project's own container: listed, not checked). */
+  where?: 'host' | 'container' | 'project';
+  /** How to install it: a sentence or a link. Without one, the package of that name on the common systems is said. */
+  hint?: string;
+  /** The file that calls it. */
+  for?: string;
+};
+
+/** A manifest's `needs` or `suggests`: the plugins alone, or the plugins and the commands. */
+export type PluginNeeds = PluginNeed[] | { plugins?: PluginNeed[]; commands?: CommandNeed[] };
 
 export type Register = (api: PluginApi) => void;
