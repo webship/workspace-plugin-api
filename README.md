@@ -23,5 +23,10 @@ cannot work without, or that a part of it is for — a name, or a list of names 
 and, as an object, the commands it needs on the machine beside them (`CommandNeed`: a name, with
 where it runs and how to install it).
 
+A plugin can be the runner of the commands the dashboard starts: `api.addRunner(fn)` is handed a
+`RunnerRequest` and answers a `RunnerAnswer`, or null to leave the run to the dashboard. `api.addScreensPanel(fn)`
+draws a panel at the top of the Screens page. Both are optional members: a dashboard that has them says so
+with `api.capabilities.has('runner')` and `has('screens-panel')`.
+
 The contract and the lifecycle (require, activate, install, configure) are documented in the
 dashboard's `core/workspace-app/PLUGINS.md`.

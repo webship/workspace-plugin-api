@@ -124,7 +124,31 @@ export interface ScreenStart {
   already?: boolean;
   needsRunner?: boolean;
   why?: string;
+  /** Where it runs: 'host' (the dashboard's host runner), 'page' (a job toast), or what a plugin's runner says. */
+  where?: string;
+  /** The answer a plugin's runner wants shown; `screenStartedHtml` returns it as it is. */
+  html?: Html;
+  /** The job's id when the command runs in the page; `screenStartedHtml` draws its toast. */
+  job?: string;
 }
+
+/** One command of a project the dashboard is about to start, as a runner is handed it. */
+export interface RunnerRequest {
+  /** The session name the dashboard would use: workspace--project--verb. */
+  session: string;
+  workspace: string;
+  project: string;
+  /** Where the command runs. */
+  projectDir: string;
+  /** The folder the work belongs to, when it is not where the command runs. */
+  ownerDir?: string;
+  verb: string;
+  cmdLine: string;
+  label: string;
+}
+
+/** What a runner answers once it has started the command its own way; null leaves it to the dashboard. */
+export type RunnerAnswer = Omit<ScreenStart, 'needsRunner' | 'job'> | null;
 
 /** The shared helpers the dashboard lends every plugin. */
 export interface PluginLib {
@@ -149,7 +173,8 @@ export interface PluginLib {
   listProjects: (dir: string) => string[];
   /** Run a workspace command in a screen session on the project, answering the request for you. */
   screenAction: (send: ActionContext['send'], opts: { workspace: string; project: string; projectDir: string; ownerDir?: string; verb: string; cmdLine: string; label: string }) => Promise<void> | void;
-  startInScreen: (opts: { workspace: string; project: string; projectDir: string; ownerDir?: string; verb: string; cmdLine: string; label: string }) => Promise<ScreenStart>;
+  /** Start a command: a plugin's runner first, the host runner next, the page last. `page: false` is for a caller that follows the session itself: it is told the runner is missing instead of being run in the page. */
+  startInScreen: (opts: { workspace: string; project: string; projectDir: string; ownerDir?: string; verb: string; cmdLine: string; label: string; page?: boolean }) => Promise<ScreenStart>;
   screenStartedHtml: (started: ScreenStart, what: string, project: string) => Html;
   /** A project or script name the dashboard accepts. */
   NAME_RE: RegExp;
@@ -214,7 +239,8 @@ export interface PluginApi {
   /**
    * What this dashboard can do that an older one could not; a package that serves several dashboards
    * checks it before using a newer form of an answer. Absent on a dashboard older than 1.0.0-rc2.
-   * Names so far: `row-menu-body` (a row-menu function may answer a `RowMenuBody`).
+   * Names so far: `row-menu-body` (a row-menu function may answer a `RowMenuBody`), `runner` (`addRunner`),
+   * `screens-panel` (`addScreensPanel`).
    */
   capabilities?: ReadonlySet<string>;
   /** Whether `config.workspaces` includes that workspace (an empty list means all). */
@@ -264,6 +290,14 @@ export interface PluginApi {
   addOpenWith: (fn: (abs: string, opts: { label?: string; caption?: string; git?: { role: string; branch: string; others: string[]; primary: string; unpushed: number; dirty: number } | null }) => Html | null) => void;
   /** A link that opens a folder elsewhere (the Web IDE on it), offered inside other menus (COMPOSER). */
   addFolderLink: (fn: (abs: string) => { href: string; label: string; icon?: string; title?: string } | null) => void;
+  /**
+   * The runner of the commands the dashboard starts (a build, a row menu's verb, a tool). The function
+   * starts the command its own way and answers with the result, or null to leave it to the dashboard
+   * (its host runner, else the page). Absent on a dashboard without `capabilities.has('runner')`.
+   */
+  addRunner?: (fn: (req: RunnerRequest) => Promise<RunnerAnswer> | RunnerAnswer) => void;
+  /** A panel at the top of the Screens page: its HTML, or '' for none. Absent on a dashboard without `capabilities.has('screens-panel')`. */
+  addScreensPanel?: (fn: () => Html) => void;
   /** A plugin that owns a workspace folder's page (the graphs workspace): its list section, the count on the home card, and whether the files-page actions and the New-folder form stay away from it. */
   addWorkspaceView: (key: string, view: { listHtml?: (state: PageState) => Html; count?: () => number; noFilesActions?: boolean; noNewForm?: boolean }) => void;
 }
