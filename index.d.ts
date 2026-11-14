@@ -328,6 +328,19 @@ export interface WorkspacePluginManifest {
    * A file a person edited, or already had under that name, is kept by --install and by --uninstall.
    */
   ai?: { agents?: string[]; skills?: string[]; commands?: string[]; prompts?: string[] };
+  /**
+   * The plugins this one cannot do its job without, by manifest name: a name, or a list of names when
+   * any one of them will do (the first is the one added when none is here) —
+   * `[["dev", "test", "sandboxes", "demos"], "ai-agents"]`. A need is about the workspace, not about
+   * node_modules: it is met when that plugin is activated and installed. --activate and --install stop
+   * until it is, and add it with --with-needs; --deactivate and --uninstall of a needed plugin refuse.
+   */
+  needs?: PluginNeed[];
+  /** The plugins a part of this one is for, in the same shape: said by --require and --list, never added, never a reason to stop. */
+  suggests?: PluginNeed[];
 }
+
+/** One need: a plugin's manifest name, or the names any one of which meets it. */
+export type PluginNeed = string | string[];
 
 export type Register = (api: PluginApi) => void;
