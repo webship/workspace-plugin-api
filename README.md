@@ -18,5 +18,8 @@ and the URL of a fragment that answers the dropdown's inner HTML when the menu o
 fifty rows carries fifty buttons and not fifty menus. A dashboard that understands that form says so
 with `api.capabilities.has('row-menu-body')`.
 
+The manifest type also knows `needs` and `suggests` (`PluginNeed[]`): the other plugins a plugin
+cannot work without, or that a part of it is for — a name, or a list of names when any one will do.
+
 The contract and the lifecycle (require, activate, install, configure) are documented in the
 dashboard's `core/workspace-app/PLUGINS.md`.
