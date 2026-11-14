@@ -321,6 +321,13 @@ export interface WorkspacePluginManifest {
   css?: string[];
   /** webship-js feature files, installed under the dashboard's tests/features/plugins/<name>/. */
   features?: string[];
+  /**
+   * AI items the plugin ships, placed in the workspace folder of their kind when the workspace has it:
+   * agents (one .md each) in ai-agents/, skills (one folder each, with its SKILL.md) in ai-skills/,
+   * commands in ai-commands/, prompts in ai-prompts/. The dashboard lists them there like any other item.
+   * A file a person edited, or already had under that name, is kept by --install and by --uninstall.
+   */
+  ai?: { agents?: string[]; skills?: string[]; commands?: string[]; prompts?: string[] };
 }
 
 export type Register = (api: PluginApi) => void;
