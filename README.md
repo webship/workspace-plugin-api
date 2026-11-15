@@ -28,5 +28,12 @@ A plugin can be the runner of the commands the dashboard starts: `api.addRunner(
 draws a panel at the top of the Screens page. Both are optional members: a dashboard that has them says so
 with `api.capabilities.has('runner')` and `has('screens-panel')`.
 
+A plugin can load its own browser scripts (the manifest's `js`, or `api.addScript(file)`), take a binary
+upload (`api.addUpload(name, handler, { maxBytes })`, handed an `UploadContext`) and add a paragraph to
+one turn of the assistant (`api.addAssistantTurn(fn)`). They are optional members too, behind
+`capabilities.has('scripts')`, `has('uploads')` and `has('assistant-turn')`. `api.lib.localSite(urlOrHost)`
+and `api.lib.readerAllowed(url)` answer which project of the workspace a host belongs to and whether the
+reading window may open a URL.
+
 The contract and the lifecycle (require, activate, install, configure) are documented in the
 dashboard's `core/workspace-app/PLUGINS.md`.
