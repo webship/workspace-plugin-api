@@ -28,6 +28,13 @@ A plugin can be the runner of the commands the dashboard starts: `api.addRunner(
 draws a panel at the top of the Screens page. Both are optional members: a dashboard that has them says so
 with `api.capabilities.has('runner')` and `has('screens-panel')`.
 
+A command the dashboard starts runs in a screen session and nowhere else on a dashboard that says
+`api.capabilities.has('screens-only')`: a plugin's runner, the host runner, then screen where the dashboard
+runs. There is no run in the page and no terminal at the bottom of it. `startInScreen` answers
+`{ ok: false, noScreen: true, cmdLine, dir }` when no session can be started, and `screenStartedHtml` draws
+the notice for every case. `api.lib.startJob` stays for a view that follows a process in a window of the
+plugin's own; it is not how a command is run.
+
 A plugin can load its own browser scripts (the manifest's `js`, or `api.addScript(file)`), take a binary
 upload (`api.addUpload(name, handler, { maxBytes })`, handed an `UploadContext`) and add a paragraph to
 one turn of the assistant (`api.addAssistantTurn(fn)`). They are optional members too, behind

@@ -133,13 +133,30 @@ export interface ScreenStart {
   ok: boolean;
   session?: string;
   already?: boolean;
-  needsRunner?: boolean;
   why?: string;
-  /** Where it runs: 'host' (the dashboard's host runner), 'page' (a job toast), or what a plugin's runner says. */
+  /**
+   * Where it runs: 'host' (the dashboard's host runner), 'dashboard' (screen where the dashboard runs), or
+   * what a plugin's runner says. A dashboard with `capabilities.has('screens-only')` never answers 'page'.
+   */
   where?: string;
-  /** The answer a plugin's runner wants shown; `screenStartedHtml` returns it as it is. */
+  /** The answer a plugin's runner wants shown; `screenStartedHtml` returns it as it is. Keep it a short notice with a link to the session, not output. */
   html?: Html;
-  /** The job's id when the command runs in the page; `screenStartedHtml` draws its toast. */
+  /**
+   * No screen session could be started (no runner, and no `screen` where the dashboard runs): the command
+   * was not run. `screenStartedHtml` says what is missing, the step that fixes it, and the line to copy.
+   */
+  noScreen?: boolean;
+  /** With `noScreen`: the command line that was not run, and the folder it runs in. */
+  cmdLine?: string;
+  dir?: string;
+  /**
+   * Set it on a started result before `screenStartedHtml`: the notice leaves a watcher that tells the page
+   * when the session is done (`refresh-projects`), instead of reloading the page as the notice goes.
+   */
+  watch?: boolean;
+  /** Only a dashboard without `screens-only`: the host runner is not up, and nothing was started. */
+  needsRunner?: boolean;
+  /** Only a dashboard without `screens-only`: the id of the job when the command ran in the page. */
   job?: string;
 }
 
@@ -177,14 +194,24 @@ export interface PluginLib {
   isValidWorkspace: (key: string) => boolean;
   /** Run a command and collect its output. */
   run: (cmd: string, args: string[], cwd: string, opts?: { timeoutMs?: number; env?: NodeJS.ProcessEnv }) => Promise<RunResult>;
-  /** Start a command as a live job toast; `jobFragment(id).html` is what to answer with. */
+  /**
+   * A view that follows a process where you swap it in (a modal, a panel of your own): `jobFragment(id).html`
+   * is what to answer with. It ends with the dashboard, so it is not how a command is run: use `screenAction`
+   * or `startInScreen`. On a dashboard with `capabilities.has('screens-only')` it is never drawn at the
+   * bottom of the page: one swapped into the page's output area is moved into the modal.
+   */
   startJob: (title: Html, cmd: string, args: string[], cwd: string, opts?: Record<string, unknown>) => string;
   jobFragment: (id: string) => { html: Html };
   runningJobKey: (key: string) => string | null | undefined;
   listProjects: (dir: string) => string[];
   /** Run a workspace command in a screen session on the project, answering the request for you. */
   screenAction: (send: ActionContext['send'], opts: { workspace: string; project: string; projectDir: string; ownerDir?: string; verb: string; cmdLine: string; label: string }) => Promise<void> | void;
-  /** Start a command: a plugin's runner first, the host runner next, the page last. `page: false` is for a caller that follows the session itself: it is told the runner is missing instead of being run in the page. */
+  /**
+   * Start a command in a screen session: a plugin's runner first, the host runner next, screen where the
+   * dashboard runs last. With none of them the answer is `{ ok: false, noScreen: true }` and nothing ran.
+   * `page` is read only by a dashboard without `capabilities.has('screens-only')`, where the last runner
+   * was the page and `page: false` asked not to be run there.
+   */
   startInScreen: (opts: { workspace: string; project: string; projectDir: string; ownerDir?: string; verb: string; cmdLine: string; label: string; page?: boolean }) => Promise<ScreenStart>;
   screenStartedHtml: (started: ScreenStart, what: string, project: string) => Html;
   /** A project or script name the dashboard accepts. */
@@ -309,7 +336,8 @@ export interface PluginApi {
   /**
    * The runner of the commands the dashboard starts (a build, a row menu's verb, a tool). The function
    * starts the command its own way and answers with the result, or null to leave it to the dashboard
-   * (its host runner, else the page). Absent on a dashboard without `capabilities.has('runner')`.
+   * (its host runner, else screen where the dashboard runs; a dashboard without `capabilities.has('screens-only')`
+   * ran it in the page instead). Absent on a dashboard without `capabilities.has('runner')`.
    */
   addRunner?: (fn: (req: RunnerRequest) => Promise<RunnerAnswer> | RunnerAnswer) => void;
   /** A panel at the top of the Screens page: its HTML, or '' for none. Absent on a dashboard without `capabilities.has('screens-panel')`. */
