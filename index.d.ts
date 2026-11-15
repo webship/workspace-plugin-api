@@ -21,6 +21,17 @@ export interface ActionContext {
   pathname: string;
 }
 
+/** What an `addUpload` handler is given. */
+export interface UploadContext {
+  req: import('http').IncomingMessage;
+  res: import('http').ServerResponse;
+  /** The posted bytes. */
+  body: Buffer;
+  searchParams: URLSearchParams;
+  /** Answer with JSON. */
+  json: (value: unknown, status?: number) => void;
+}
+
 export interface FragmentContext {
   req: import('http').IncomingMessage;
   res: import('http').ServerResponse;
@@ -200,6 +211,10 @@ export interface PluginLib {
   tildePath: (p: string) => string;
   /** The list helpers a plugin's own list page draws with: readPageState(req), paginate(list, state), SORTS, defaultSort(), listControlsHtml(url, target, state, noun), listPagerHtml(url, target, page, state, noun). */
   lists: { readPageState: (req: unknown, list?: unknown) => PageState; paginate: (list: unknown[], state: PageState) => { slice: any[]; page: number; pages: number; total: number }; SORTS: Record<string, { cmp: (a: any, b: any) => number }>; defaultSort: () => string; listControlsHtml: (url: string, target: string, state: PageState, noun: string, extra?: Html, hidden?: Html, opts?: Record<string, unknown>) => Html; listPagerHtml: (url: string, target: string, page: unknown, state: PageState, noun: string) => Html };
+  /** The project of this workspace a URL or host name belongs to, or null. Absent on an older dashboard. */
+  localSite?: (urlOrHost: string) => { workspace: string; project: string; dir: string; host: string } | null;
+  /** '' when the reading window may open a URL, else the reason it may not. Absent on an older dashboard. */
+  readerAllowed?: (url: string) => string;
   /** The stylesheet version a standalone page links (`/style.css?v=…`). */
   cssVersionNow: () => string;
   /** The first `cmd-*.sh` in a folder matching one of the patterns, or null. */
@@ -240,7 +255,8 @@ export interface PluginApi {
    * What this dashboard can do that an older one could not; a package that serves several dashboards
    * checks it before using a newer form of an answer. Absent on a dashboard older than 1.0.0-rc2.
    * Names so far: `row-menu-body` (a row-menu function may answer a `RowMenuBody`), `runner` (`addRunner`),
-   * `screens-panel` (`addScreensPanel`).
+   * `screens-panel` (`addScreensPanel`), `scripts` (`addScript` and the manifest's `js`), `uploads` (`addUpload`),
+   * `assistant-turn` (`addAssistantTurn`).
    */
   capabilities?: ReadonlySet<string>;
   /** Whether `config.workspaces` includes that workspace (an empty list means all). */
@@ -298,6 +314,23 @@ export interface PluginApi {
   addRunner?: (fn: (req: RunnerRequest) => Promise<RunnerAnswer> | RunnerAnswer) => void;
   /** A panel at the top of the Screens page: its HTML, or '' for none. Absent on a dashboard without `capabilities.has('screens-panel')`. */
   addScreensPanel?: (fn: () => Html) => void;
+  /**
+   * A browser script of the plugin's own (what the manifest's `js` does): served at
+   * `/plugin-js/<plugin>/<file name>` and loaded with `defer` after the dashboard's own, in the order
+   * declared. Absent on a dashboard without `capabilities.has('scripts')`.
+   */
+  addScript?: (absoluteFile: string) => void;
+  /**
+   * POST handler at `/actions/p/<plugin>/<name>` for a binary body (an utterance, a picture). Refused
+   * from another site and over `maxBytes` (2 MB unless said). Absent on a dashboard without
+   * `capabilities.has('uploads')`.
+   */
+  addUpload?: (name: string, handler: (ctx: UploadContext) => unknown, opts?: { maxBytes?: number }) => void;
+  /**
+   * A paragraph of the assistant's context for one turn only: the function is given what the page
+   * posted and answers a paragraph or ''. Absent on a dashboard without `capabilities.has('assistant-turn')`.
+   */
+  addAssistantTurn?: (fn: (ctx: { body: Record<string, any>; message: string }) => Promise<string> | string) => void;
   /** A plugin that owns a workspace folder's page (the graphs workspace): its list section, the count on the home card, and whether the files-page actions and the New-folder form stay away from it. */
   addWorkspaceView: (key: string, view: { listHtml?: (state: PageState) => Html; count?: () => number; noFilesActions?: boolean; noNewForm?: boolean }) => void;
 }
@@ -353,6 +386,8 @@ export interface WorkspacePluginManifest {
   themes?: string[];
   /** Stylesheets appended after the dashboard's components. */
   css?: string[];
+  /** Browser scripts loaded on every page after the dashboard's own (needs a dashboard with the `scripts` capability). */
+  js?: string[];
   /** webship-js feature files, installed under the dashboard's tests/features/plugins/<name>/. */
   features?: string[];
   /**
