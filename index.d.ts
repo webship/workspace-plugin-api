@@ -283,7 +283,8 @@ export interface PluginApi {
    * checks it before using a newer form of an answer. Absent on a dashboard older than 1.0.0-rc2.
    * Names so far: `row-menu-body` (a row-menu function may answer a `RowMenuBody`), `runner` (`addRunner`),
    * `screens-panel` (`addScreensPanel`), `scripts` (`addScript` and the manifest's `js`), `uploads` (`addUpload`),
-   * `assistant-turn` (`addAssistantTurn`).
+   * `assistant-turn` (`addAssistantTurn`), `screens-only` (commands run in screen sessions only), `settings-family`
+   * (the manifest's `family` and `summary`).
    */
   capabilities?: ReadonlySet<string>;
   /** Whether `config.workspaces` includes that workspace (an empty list means all). */
@@ -416,6 +417,13 @@ export interface WorkspacePluginManifest {
   css?: string[];
   /** Browser scripts loaded on every page after the dashboard's own (needs a dashboard with the `scripts` capability). */
   js?: string[];
+  /**
+   * Where Settings lists the plugin. Without it the dashboard infers a family from the plugin's name and
+   * what it ships. Read by a dashboard with `capabilities.has('settings-family')`.
+   */
+  family?: 'platforms' | 'folders' | 'ai' | 'hosting' | 'forges' | 'containers' | 'features';
+  /** One line (up to 160 characters) under the plugin's name in Settings. Read by a dashboard with `capabilities.has('settings-family')`. */
+  summary?: string;
   /** webship-js feature files, installed under the dashboard's tests/features/plugins/<name>/. */
   features?: string[];
   /**
