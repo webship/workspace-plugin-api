@@ -14,7 +14,15 @@
     "index.js",
     "README.md"
   ],
+  "scripts": {
+    "lint": "tsc -p tsconfig.json",
+    "test": "npm run lint && node --test tests/*.test.js"
+  },
   "publishConfig": {
     "access": "public"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "^5.9.0"
   }
 }
