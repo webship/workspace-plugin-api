@@ -15,8 +15,10 @@
     "README.md"
   ],
   "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "prepare": "npm run build",
     "lint": "tsc -p tsconfig.json",
-    "test": "npm run lint && node --test tests/*.test.js"
+    "test": "npm run lint && npm run build && node --test tests/*.test.mts"
   },
   "publishConfig": {
     "access": "public"

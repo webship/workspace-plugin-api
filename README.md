@@ -48,3 +48,17 @@ dashboard's `core/workspace-app/PLUGINS.md`.
 The manifest's `family` (`platforms`, `folders`, `ai`, `hosting`, `forges`, `containers`, `features`) and
 `summary` (one line) say where Settings lists a plugin and what it shows under its name, on a dashboard
 with `capabilities.has('settings-family')`. Both are optional.
+
+## Development
+
+The package is TypeScript throughout. `src/index.ts` is the runtime module (an empty object): `npm run build`
+compiles it to `index.js`, the `main` of the published package, and `prepare` runs that build before the
+package is packed, so `index.js` is built and never committed. Node.js does not run TypeScript from inside
+`node_modules`, which is why the published file is the compiled one. The tests are TypeScript too
+(`tests/package.test.mts`) and Node.js runs them as they are, from Node.js 22.18.
+
+```bash
+npm ci          # installs, then builds index.js
+npm run lint    # tsc, strict, erasable syntax only: index.d.ts, src/ and tests/
+npm test        # the lint, the build, then node --test tests/*.test.mts
+```
