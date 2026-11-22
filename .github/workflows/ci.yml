@@ -21,9 +21,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # 20: the lowest Node.js the base's engines field accepts (">=20").
-        # 24: the Node.js the dashboard runs on, which loads this plugin.
-        node: ['20', '24']
+        # 22: the lowest Node.js line the Workspace accepts (22.18), the first that runs the TypeScript tests as they are.
+        # 26: the Node.js the Workspace builds on.
+        node: ['22', '26']
     steps:
       - uses: actions/checkout@v7
         with:
