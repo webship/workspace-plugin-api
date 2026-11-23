@@ -55,7 +55,7 @@ The package is TypeScript throughout. `src/index.ts` is the runtime module (an e
 compiles it to `index.js`, the `main` of the published package, and `prepare` runs that build before the
 package is packed, so `index.js` is built and never committed. Node.js does not run TypeScript from inside
 `node_modules`, which is why the published file is the compiled one. The tests are TypeScript too
-(`tests/package.test.mts`) and Node.js runs them as they are, from Node.js 22.18.
+(`tests/package.test.mts`) and Node.js runs them as they are, on Node.js 24 or later.
 
 ```bash
 npm ci          # installs, then builds index.js
