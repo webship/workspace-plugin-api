@@ -1,6 +1,6 @@
 /**
  * What the published package holds: the types a plugin compiles against, and the runtime module it loads.
- * Node.js runs this file as it is (type stripping, from Node.js 22.18); `npm run lint` type-checks it.
+ * Node.js runs this file as it is (type stripping, Node.js 24 or later); `npm run lint` type-checks it.
  *
  * The names below are the ones the published @webship.co/workspace-* plugins import (read from their sources on
  * 2026-11-16): removing or renaming one breaks those plugins on their next install, so it must be a decision.

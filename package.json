@@ -5,6 +5,9 @@
   "types": "index.d.ts",
   "main": "index.js",
   "license": "ISC",
+  "engines": {
+    "node": ">=24"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/webship/workspace-plugin-api.git"

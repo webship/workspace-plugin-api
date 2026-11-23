@@ -21,9 +21,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # 22: the lowest Node.js line the Workspace accepts (22.18), the first that runs the TypeScript tests as they are.
+        # 24: the lowest Node.js line the Workspace accepts (">=24"); it runs the TypeScript tests as they are.
         # 26: the Node.js the Workspace builds on.
-        node: ['22', '26']
+        node: ['24', '26']
     steps:
       - uses: actions/checkout@v7
         with:
