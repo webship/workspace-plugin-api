@@ -22,6 +22,16 @@ export const manifest: WorkspacePluginManifest = {
   features: ['features/example.feature'],
 };
 
+// An engine of the database family says so, the way the MariaDB, MySQL, PostgreSQL and SQLite plugins do.
+export const engineManifest: WorkspacePluginManifest = {
+  name: 'example-db',
+  label: 'Example DB',
+  family: 'databases',
+  summary: 'The DATABASE menu of a project whose database is Example DB',
+  typeActions: { database: ['sites'] },
+  commands: { types: ['sites'], files: ['commands/cmd-tools-example-db.sh'] },
+};
+
 function rowMenu(lib: PluginLib, ctx: RowContext): RowMenuAnswer {
   if (!ctx.allowed.has('example')) return null;
   return {

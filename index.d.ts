@@ -421,7 +421,7 @@ export interface WorkspacePluginManifest {
    * Where Settings lists the plugin. Without it the dashboard infers a family from the plugin's name and
    * what it ships. Read by a dashboard with `capabilities.has('settings-family')`.
    */
-  family?: 'platforms' | 'folders' | 'ai' | 'hosting' | 'forges' | 'containers' | 'features';
+  family?: 'platforms' | 'folders' | 'ai' | 'hosting' | 'forges' | 'containers' | 'databases' | 'features';
   /** One line (up to 160 characters) under the plugin's name in Settings. Read by a dashboard with `capabilities.has('settings-family')`. */
   summary?: string;
   /** webship-js feature files, installed under the dashboard's tests/features/plugins/<name>/. */

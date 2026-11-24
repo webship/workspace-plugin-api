@@ -45,7 +45,7 @@ reading window may open a URL.
 The contract and the lifecycle (require, activate, install, configure) are documented in the
 dashboard's `core/workspace-app/PLUGINS.md`.
 
-The manifest's `family` (`platforms`, `folders`, `ai`, `hosting`, `forges`, `containers`, `features`) and
+The manifest's `family` (`platforms`, `folders`, `ai`, `hosting`, `forges`, `containers`, `databases`, `features`) and
 `summary` (one line) say where Settings lists a plugin and what it shows under its name, on a dashboard
 with `capabilities.has('settings-family')`. Both are optional.
 
